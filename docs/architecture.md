@@ -58,34 +58,8 @@ flowchart LR
 
 ### Компонентная декомпозиция 
 
-```
 flowchart TB
     Client[Внешний клиент / Web-интерфейс] -->|HTTP POST /api/v1/predict| API[FastAPI Gateway]
-
-    subgraph AppContainer [Контейнер приложения (FastAPI Service)]
-        API --> Auth[Модуль аутентификации API-Key]
-        Auth --> Validator[Pydantic Request Validator]
-        Validator --> Preprocessing[Feature Preprocessing Pipeline]
-        Preprocessing --> InferenceEngine[Model Inference Engine]
-        
-        InferenceEngine --> BusinessLogic[Прикладные бизнес-правила]
-    end
-
-    subgraph ArtifactStore [Хранилище моделей]
-        InferenceEngine -.->|Загрузка весов v1.0.0| ModelFile[(Model Storage / MLflow / S3)]
-    end
-
-    subgraph DataStore [Слой персистентности]
-        BusinessLogic -->|Запись факта прогноза и метаданных| AppDB[(PostgreSQL / SQLite)]
-    end
-
-    subgraph ObservabilityStack [Контур мониторинга]
-        API -.->|Сбор метрик HTTP / Latency| MetricsEndpoint[/metrics Endpoint/]
-        BusinessLogic -.->|Структурированные логи| LogsOutput[JSON Logger]
-    end
-
-    BusinessLogic -->|HTTP 200: JSON Response| Client
-```
 
 ### Описание компонентов
 
