@@ -36,6 +36,7 @@
 
 ### Контекстная диаграмма
 
+```
 flowchart LR
     User[Оператор / Пользователь] -->|HTTPS: Запрос / Данные| System[Проектируемая AI-Система]
     System -->|JSON: Прогноз + Уверенность| User
@@ -43,6 +44,7 @@ flowchart LR
     System -->|Чтение профиля / истории| CorpDB[(Внешняя корпоративная БД / ERP)]
     System -->|Алерты при критических сбоях| AlertSystem[Сервис уведомлений Telegram/Email]
     System -.->|Экспорт задержек и ошибок| Monitoring[Система мониторинга Prometheus]
+```
 
 ### Описание информационных потоков
 
@@ -56,6 +58,7 @@ flowchart LR
 
 ### Компонентная декомпозиция 
 
+```
 flowchart TB
     Client[Внешний клиент / Web-интерфейс] -->|HTTP POST /api/v1/predict| API[FastAPI Gateway]
 
@@ -82,6 +85,7 @@ flowchart TB
     end
 
     BusinessLogic -->|HTTP 200: JSON Response| Client
+```
 
 ### Описание компонентов
 
