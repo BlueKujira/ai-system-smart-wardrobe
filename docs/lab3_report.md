@@ -39,7 +39,7 @@ class CNNResult(BaseModel):
 
 Запустить тесты
 
-python -m pytest tests/ -v
+pytest tests/test_cnn.py
 
 | Вход | Ожидаемое поведение |
 |---|---|
