@@ -1,23 +1,27 @@
-from .schemas import CNNRequest, CNNAttributes, CNNResult, InvalidInputError, ModelUnavailableError
-from .preprocessing import load_and_preprocess
-from .inference import CNNModel
+from app.schemas import CNNRequest, CNNAttributes, CNNResult, InvalidInputError, ModelUnavailableError
+from app.preprocessing import load_and_preprocess
+from app.inference import CNNModel
+import joblib
 
 CONFIDENCE_T = 0.50
 
 SEASON_TO_WEATHER = {
-    0: 0,  # Summer - Sunny
-    1: 1,  # Fall - Cloudy
-    2: 3,  # Winter - Snowy
-    3: 2,  # Spring - Rainy
+    0: 0,  # Fall - Cloudy
+    1: 1,  # Spring - Rainy
+    2: 2,  # Summer - Sunny
+    3: 3,  # Winter - Snowy
 }
 
 class CNNService:
-    def __init__(self, model_path: str, mappings_path: str):
+    def __init__(self, model_path, mappings_path, preprocessor_path):
         self.model = CNNModel(model_path, mappings_path)
+        self.preprocessor = joblib.load(preprocessor_path)
     
     def predict(self, request: CNNRequest):
-        img_array = load_and_preprocess(request.image_path)
+        image_size = self.preprocessor.get("image_size", 96)
 
+        img_array = load_and_preprocess(request.image_path, image_size)
+        
         attrs, confidence = self.model.predict_with_confidence(img_array)
         
         if 'weather' not in attrs:
@@ -28,6 +32,8 @@ class CNNService:
         needs_review = confidence < CONFIDENCE_T
         
         return CNNResult(
+            trace_id="test-trace-id",
+            source="model", 
             attributes=prediction,
             confidence=round(confidence, 4),
             model_version=self.model.version,

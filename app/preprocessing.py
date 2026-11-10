@@ -1,19 +1,17 @@
 import os
 import numpy as np
 from PIL import Image
-from .schemas import InvalidInputError
+from app.schemas import InvalidInputError
 
-IMAGE_SIZE = 96
-
-def load_and_preprocess(image_path: str) -> np.ndarray:
+def load_and_preprocess(image_path, image_size):
     if not os.path.exists(image_path):
         raise InvalidInputError('Файл не найден')
     
     try:
         img = Image.open(image_path).convert('RGB')
-        img = img.resize((IMAGE_SIZE, IMAGE_SIZE))
+        img = img.resize((image_size, image_size))
         img_array = np.array(img) / 255.0
-        img_array = np.reshape(img_array, (1, IMAGE_SIZE, IMAGE_SIZE, 3))
+        img_array = np.reshape(img_array, (1, image_size, image_size, 3))
         return img_array
-    except Exception as e:
+    except Exception:
         raise InvalidInputError('Ошибка обработки изображения')

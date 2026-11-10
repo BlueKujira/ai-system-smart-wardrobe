@@ -1,0 +1,41 @@
+name: Smart Wardrobe CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r app/requirements.txt
+          pip install pytest requests
+
+      - name: Run tests
+        run: python -m pytest tests/test_api.py tests/test_cnn.py -v
+        env:
+          PYTHONPATH: .
+
+      - name: Build Docker image
+        run: docker build -t wardrobe-api:${{ github.sha }} .
+
+      - name: Smoke test container
+        run: |
+          docker run -d -p 8000:8000 --name test-api wardrobe-api:${{ github.sha }}
+          sleep 15
+          curl --fail http://localhost:8000/health
+          docker stop test-api

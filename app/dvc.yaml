@@ -1,0 +1,14 @@
+stages:
+  prepare_data:
+    cmd: python -m pipeline
+    deps:
+      - pipeline.py
+      - contracts.py
+      - data/raw/data_cnn.csv
+    outs:
+      - data/processed/train.parquet
+      - data/processed/test.parquet
+      - artifacts/preprocessor.joblib
+    metrics:
+      - data/processed/validation_report.json:
+          cache: false

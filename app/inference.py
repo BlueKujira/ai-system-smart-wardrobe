@@ -2,12 +2,12 @@ import os
 import json
 import numpy as np
 import tensorflow as tf
-from .schemas import ModelUnavailableError
+from app.schemas import ModelUnavailableError
 
 class CNNModel:
     MODEL_VERSION = '1.0.0'
     
-    def __init__(self, model_path: str, mappings_path: str):
+    def __init__(self, model_path, mappings_path):
         if not os.path.exists(model_path):
             raise ModelUnavailableError(f'Модель не найдена: {model_path}')
         if not os.path.exists(mappings_path):
@@ -23,9 +23,9 @@ class CNNModel:
         except Exception as e:
             raise ModelUnavailableError(f'Ошибка загрузки модели: {e}')
     
-    def predict(self, img_array: np.ndarray) -> dict:
+    def predict(self, img_array):
         try:
-            preds = self.model.predict(img_array, verbose=0)
+            preds = self.model.predict(img_array)
             return {
                 attr: int(np.argmax(preds[attr][0]))
                 for attr in self.attributes
@@ -33,7 +33,7 @@ class CNNModel:
         except Exception as e:
             raise ModelUnavailableError(f'Ошибка предсказания: {e}')
     
-    def predict_with_confidence(self, img_array: np.ndarray):
+    def predict_with_confidence(self, img_array):
         try:
             preds = self.model.predict(img_array, verbose=0)
             
@@ -52,5 +52,5 @@ class CNNModel:
             raise ModelUnavailableError(f'Ошибка предсказания: {e}')
     
     @property
-    def version(self) -> str:
+    def version(self):
         return self.MODEL_VERSION

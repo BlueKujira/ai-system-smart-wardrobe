@@ -1,20 +1,22 @@
 import pytest
-from PIL import Image
-from app import CNNRequest, CNNResult, CNNService, InvalidInputError, ModelUnavailableError
+import os
 
-MODEL_PATH = "model/fashion_model.keras"
-MAPPINGS_PATH = "model/mappings.json"
+from app.schemas import CNNRequest, InvalidInputError, ModelUnavailableError
+from app.service import CNNService
+
+MODEL_PATH = "app/model/fashion_model.keras"
+MAPPINGS_PATH = "app/model/mappings.json"
+PREPROCESSOR_PATH = "app/artifacts/preprocessor.joblib" 
 
 def create_test_image(tmp_path, name, color):
-    img = Image.new('RGB', (300, 300), color=color)
-    path = tmp_path / name
-    img.save(path)
-    return str(path)
+    if 'blue' in name:
+        return "tests/test_image1.jpg"
+    return "tests/test_image2.jpg"
 
 def test_valid_input(tmp_path):
     blue_image = create_test_image(tmp_path, 'blue.jpg', (50, 100, 200))
     
-    service = CNNService(MODEL_PATH, MAPPINGS_PATH)
+    service = CNNService(MODEL_PATH, MAPPINGS_PATH, PREPROCESSOR_PATH)
     
     request = CNNRequest(image_path=blue_image)
     result = service.predict(request)
@@ -26,14 +28,14 @@ def test_valid_input(tmp_path):
     attrs = result.attributes
     assert 0 <= attrs.gender <= 4
     assert 0 <= attrs.masterCategory <= 6
-    assert 0 <= attrs.articleType <= 142
+    assert 0 <= attrs.articleType <= 140
     assert 0 <= attrs.weather <= 3
 
 def test_different_inputs(tmp_path):
     blue_image = create_test_image(tmp_path, 'blue.jpg', (50, 100, 200))
     red_image = create_test_image(tmp_path, 'red.jpg', (200, 50, 50))
     
-    service = CNNService(MODEL_PATH, MAPPINGS_PATH)
+    service = CNNService(MODEL_PATH, MAPPINGS_PATH, PREPROCESSOR_PATH)
 
     result_blue = service.predict(CNNRequest(image_path=blue_image))
     result_red = service.predict(CNNRequest(image_path=red_image))
@@ -50,9 +52,9 @@ def test_different_inputs(tmp_path):
     )
 
 def test_missing_file():
-    service = CNNService(MODEL_PATH, MAPPINGS_PATH)
+    service = CNNService(MODEL_PATH, MAPPINGS_PATH, PREPROCESSOR_PATH)
     
-    request = CNNRequest(image_path='')
+    request = CNNRequest(image_path='non.jpg')
     
     with pytest.raises(InvalidInputError):
         service.predict(request)
@@ -63,7 +65,4 @@ def test_empty_path():
 
 def test_model_missing():
     with pytest.raises(ModelUnavailableError):
-        CNNService(
-            '',
-            '',
-        )
+        CNNService('', '', '')

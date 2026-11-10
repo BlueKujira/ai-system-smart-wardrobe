@@ -11,13 +11,15 @@ class CNNAttributes(BaseModel):
     gender: int = Field(ge=0, le=4)
     masterCategory: int = Field(ge=0, le=6)
     subCategory: int = Field(ge=0, le=44)
-    articleType: int = Field(ge=0, le=142)
+    articleType: int = Field(ge=0, le=140)
     baseColour: int = Field(ge=0, le=45)
     season: int = Field(ge=0, le=3)
-    usage: int = Field(ge=0, le=8)
+    usage: int = Field(ge=0, le=7)
     weather: int = Field(ge=0, le=3)
 
 class CNNResult(BaseModel):
+    trace_id: str = Field(description="ID запроса")
+    source: str = Field(description="Источник ответа")
     attributes: CNNAttributes
     confidence: float = Field(ge=0.0, le=1.0)
     model_version: str

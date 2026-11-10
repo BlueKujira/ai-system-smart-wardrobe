@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+tensorflow-cpu
+pydantic
+joblib
+pandas
+pillow
+pytest
+requests
